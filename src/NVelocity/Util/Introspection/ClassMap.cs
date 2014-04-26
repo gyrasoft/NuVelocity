@@ -14,245 +14,245 @@
 
 namespace NVelocity.Util.Introspection
 {
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Reflection;
-	using System.Text;
+   using System;
+   using System.Collections;
+   using System.Collections.Generic;
+   using System.Reflection;
+   using System.Text;
 
-	/// <summary>
-	/// A cache of introspection information for a specific class instance.
-	/// Keys <see cref="MethodInfo"/> objects by a concatenation of the
-	/// method name and the names of classes that make up the parameters.
-	/// </summary>
-	public class ClassMap
-	{
-		private static readonly MethodInfo CACHE_MISS =
-			typeof(ClassMap).GetMethod("MethodMiss", BindingFlags.Static | BindingFlags.NonPublic);
+   /// <summary>
+   /// A cache of introspection information for a specific class instance.
+   /// Keys <see cref="MethodInfo"/> objects by a concatenation of the
+   /// method name and the names of classes that make up the parameters.
+   /// </summary>
+   public class ClassMap
+   {
+      private static readonly MethodInfo CACHE_MISS =
+         typeof(ClassMap).GetMethod("MethodMiss", BindingFlags.Static | BindingFlags.NonPublic);
 
-		private static readonly Object OBJECT = new Object();
+      private static readonly Object OBJECT = new Object();
 
-		private readonly Type type;
+      private readonly Type type;
 
-		/// <summary> Cache of Methods, or CACHE_MISS, keyed by method
-		/// name and actual arguments used to find it.
-		/// </summary>
-		private readonly Dictionary<string, MethodInfo> methodCache =
-			new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
+      /// <summary> Cache of Methods, or CACHE_MISS, keyed by method
+      /// name and actual arguments used to find it.
+      /// </summary>
+      private readonly Dictionary<string, MethodInfo> methodCache =
+         new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
 
-		private readonly Dictionary<string, MemberInfo> propertyCache =
-			new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+      private readonly Dictionary<string, MemberInfo> propertyCache =
+         new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
 
-		private readonly MethodMap methodMap = new MethodMap();
+      private readonly MethodMap methodMap = new MethodMap();
 
-		/// <summary> Standard constructor
-		/// </summary>
-		public ClassMap(Type type)
-		{
-			this.type = type;
-			PopulateMethodCache();
-			PopulatePropertyCache();
-		}
+      /// <summary> Standard constructor
+      /// </summary>
+      public ClassMap(Type type)
+      {
+         this.type = type;
+         PopulateMethodCache();
+         PopulatePropertyCache();
+      }
 
-		public ClassMap()
-		{
-		}
+      public ClassMap()
+      {
+      }
 
-		/// <summary>
-		/// Class passed into the constructor used to as
-		/// the basis for the Method map.
-		/// </summary>
-		internal Type CachedClass
-		{
-			get { return type; }
-		}
+      /// <summary>
+      /// Class passed into the constructor used to as
+      /// the basis for the Method map.
+      /// </summary>
+      internal Type CachedClass
+      {
+         get { return type; }
+      }
 
 
-		/// <summary>
-		/// Find a Method using the methodKey provided.
-		///
-		/// Look in the methodMap for an entry.  If found,
-		/// it'll either be a CACHE_MISS, in which case we
-		/// simply give up, or it'll be a Method, in which
-		/// case, we return it.
-		///
-		/// If nothing is found, then we must actually go
-		/// and introspect the method from the MethodMap.
-		/// </summary>
-		/// <returns>
-		/// the class object whose methods are cached by this map.
-		/// </returns>
-		public MethodInfo FindMethod(String name, Object[] parameters)
-		{
-			String methodKey = MakeMethodKey(name, parameters);
-			MethodInfo cacheEntry;
+      /// <summary>
+      /// Find a Method using the methodKey provided.
+      ///
+      /// Look in the methodMap for an entry.  If found,
+      /// it'll either be a CACHE_MISS, in which case we
+      /// simply give up, or it'll be a Method, in which
+      /// case, we return it.
+      ///
+      /// If nothing is found, then we must actually go
+      /// and introspect the method from the MethodMap.
+      /// </summary>
+      /// <returns>
+      /// the class object whose methods are cached by this map.
+      /// </returns>
+      public MethodInfo FindMethod(String name, Object[] parameters)
+      {
+         String methodKey = MakeMethodKey(name, parameters);
+         MethodInfo cacheEntry;
 
-			if (methodCache.TryGetValue(methodKey, out cacheEntry))
-			{
-				if (cacheEntry == CACHE_MISS)
-				{
-					return null;
-				}
-			}
-			else
-			{
-				try
-				{
-					cacheEntry = methodMap.Find(name, parameters);
-				}
-				catch(AmbiguousException)
-				{
-					// that's a miss :)
-					methodCache[methodKey] = CACHE_MISS;
-					throw;
-				}
+         if (methodCache.TryGetValue(methodKey, out cacheEntry))
+         {
+            if (cacheEntry == CACHE_MISS)
+            {
+               return null;
+            }
+         }
+         else
+         {
+            try
+            {
+               cacheEntry = methodMap.Find(name, parameters);
+            }
+            catch(AmbiguousException)
+            {
+               // that's a miss :)
+               methodCache[methodKey] = CACHE_MISS;
+               throw;
+            }
 
-				methodCache[methodKey] = cacheEntry ?? CACHE_MISS;
-			}
+            methodCache[methodKey] = cacheEntry ?? CACHE_MISS;
+         }
 
-			// Yes, this might just be null.
+         // Yes, this might just be null.
 
-			return cacheEntry;
-		}
+         return cacheEntry;
+      }
 
-		/// <summary>
-		/// Find a Method using the methodKey
-		/// provided.
-		///
-		/// Look in the methodMap for an entry.  If found,
-		/// it'll either be a CACHE_MISS, in which case we
-		/// simply give up, or it'll be a Method, in which
-		/// case, we return it.
-		///
-		/// If nothing is found, then we must actually go
-		/// and introspect the method from the MethodMap.
-		/// </summary>
-		public PropertyInfo FindProperty(String name)
-		{
-			MemberInfo cacheEntry;
+      /// <summary>
+      /// Find a Method using the methodKey
+      /// provided.
+      ///
+      /// Look in the methodMap for an entry.  If found,
+      /// it'll either be a CACHE_MISS, in which case we
+      /// simply give up, or it'll be a Method, in which
+      /// case, we return it.
+      ///
+      /// If nothing is found, then we must actually go
+      /// and introspect the method from the MethodMap.
+      /// </summary>
+      public PropertyInfo FindProperty(String name)
+      {
+         MemberInfo cacheEntry;
 
-			if (propertyCache.TryGetValue(name, out cacheEntry))
-			{
-				if (cacheEntry == CACHE_MISS)
-				{
-					return null;
-				}
-			}
+         if (propertyCache.TryGetValue(name, out cacheEntry))
+         {
+            if (cacheEntry == CACHE_MISS)
+            {
+               return null;
+            }
+         }
 
-			// Yes, this might just be null.
-			return (PropertyInfo) cacheEntry;
-		}
+         // Yes, this might just be null.
+         return (PropertyInfo) cacheEntry;
+      }
 
-		/// <summary>
-		/// Populate the Map of direct hits. These
-		/// are taken from all the public methods
-		/// that our class provides.
-		/// </summary>
-		private void PopulateMethodCache()
-		{
-			// get all publicly accessible methods
-			MethodInfo[] methods = GetAccessibleMethods(type);
+      /// <summary>
+      /// Populate the Map of direct hits. These
+      /// are taken from all the public methods
+      /// that our class provides.
+      /// </summary>
+      private void PopulateMethodCache()
+      {
+         // get all publicly accessible methods
+         MethodInfo[] methods = GetAccessibleMethods(type);
 
-			// map and cache them
-			foreach(MethodInfo method in methods)
-			{
-				methodMap.Add(method);
-				methodCache[MakeMethodKey(method)] = method;
-			}
-		}
+         // map and cache them
+         foreach(MethodInfo method in methods)
+         {
+            methodMap.Add(method);
+            methodCache[MakeMethodKey(method)] = method;
+         }
+      }
 
-		private void PopulatePropertyCache()
-		{
-			// get all publicly accessible methods
-			PropertyInfo[] properties = GetAccessibleProperties(type);
+      private void PopulatePropertyCache()
+      {
+         // get all publicly accessible methods
+         PropertyInfo[] properties = GetAccessibleProperties(type);
 
-			// map and cache them
-			foreach(PropertyInfo property in properties)
-			{
-                // melvin smith: fixed bug where NVelocity has the limitation of lacking
-                // support for property inheritance/hiding. Maybe DeclaringType should be part of
-                // the key, or at least the code should choose the correct property based on DeclaryingType
-                // before storing it in cache. Leave comment here because I intend to return to this and
-                // fully understand the full implications. This can also be enhanced by adding fast property accessor
-			    if (propertyCache.ContainsKey(property.Name))
-			    {
-			        PropertyInfo other = (PropertyInfo)propertyCache[property.Name];
-			        // Don't stomp on previous property if the DeclaryingType matches this type because that property
-                    // has hidden any inherited versions. Onlyt seems to affect properties that are generic collections
-                    if (other.DeclaringType == this.type)
-			            continue;
-			    }
+         // map and cache them
+         foreach(PropertyInfo property in properties)
+         {
+            // melvin smith: fixed bug regarding lack of support for property inheritance/hiding.
+            // Maybe DeclaringType should be part of the key to the cache, or at least we should choose
+            // the correct property based on DeclaryingType before storing it in cache.
+            // TODO: Return to this and fully understand the full implications.
+            // TODO: Enhance performance by adding fast property accessor (see MVC source)
+            if (propertyCache.ContainsKey(property.Name))
+            {
+                PropertyInfo other = (PropertyInfo)propertyCache[property.Name];
+                // Don't stomp on previous property if the DeclaryingType matches this type because that property
+                // has hidden any inherited versions. Only seems to affect properties that are generic collections
+                if (other.DeclaringType == this.type)
+                    continue;
+            }
 
                 //propertyMap.add(publicProperty);
-				propertyCache[property.Name] = property;
-			}
-		}
+            propertyCache[property.Name] = property;
+         }
+      }
 
-		/// <summary>
-		/// Make a methodKey for the given method using
-		/// the concatenation of the name and the
-		/// types of the method parameters.
-		/// </summary>
-		private static String MakeMethodKey(MethodInfo method)
-		{
-			StringBuilder methodKey = new StringBuilder(method.Name);
+      /// <summary>
+      /// Make a methodKey for the given method using
+      /// the concatenation of the name and the
+      /// types of the method parameters.
+      /// </summary>
+      private static String MakeMethodKey(MethodInfo method)
+      {
+         StringBuilder methodKey = new StringBuilder(method.Name);
 
-			foreach(ParameterInfo p in method.GetParameters())
-			{
-				methodKey.Append(p.ParameterType.FullName);
-			}
+         foreach(ParameterInfo p in method.GetParameters())
+         {
+            methodKey.Append(p.ParameterType.FullName);
+         }
 
-			return methodKey.ToString();
-		}
+         return methodKey.ToString();
+      }
 
-		private static String MakeMethodKey(String method, Object[] parameters)
-		{
-			StringBuilder methodKey = new StringBuilder(method);
+      private static String MakeMethodKey(String method, Object[] parameters)
+      {
+         StringBuilder methodKey = new StringBuilder(method);
 
-			if (parameters != null)
-			{
-				for(int j = 0; j < parameters.Length; j++)
-				{
-					Object arg = parameters[j];
+         if (parameters != null)
+         {
+            for(int j = 0; j < parameters.Length; j++)
+            {
+               Object arg = parameters[j];
 
-					if (arg == null) arg = OBJECT;
+               if (arg == null) arg = OBJECT;
 
-					methodKey.Append(arg.GetType().FullName);
-				}
-			}
+               methodKey.Append(arg.GetType().FullName);
+            }
+         }
 
-			return methodKey.ToString();
-		}
+         return methodKey.ToString();
+      }
 
-		/// <summary>
-		/// Retrieves public methods for a class.
-		/// </summary>
-		private static MethodInfo[] GetAccessibleMethods(Type type)
-		{
-			ArrayList methods = new ArrayList();
+      /// <summary>
+      /// Retrieves public methods for a class.
+      /// </summary>
+      private static MethodInfo[] GetAccessibleMethods(Type type)
+      {
+         ArrayList methods = new ArrayList();
 
-			foreach(Type interfaceType in type.GetInterfaces())
-			{
-				methods.AddRange(interfaceType.GetMethods());
-			}
+         foreach(Type interfaceType in type.GetInterfaces())
+         {
+            methods.AddRange(interfaceType.GetMethods());
+         }
 
-			methods.AddRange(type.GetMethods());
+         methods.AddRange(type.GetMethods());
 
-			return (MethodInfo[]) methods.ToArray(typeof(MethodInfo));
-		}
+         return (MethodInfo[]) methods.ToArray(typeof(MethodInfo));
+      }
 
-		private static PropertyInfo[] GetAccessibleProperties(Type type)
-		{
-			ArrayList props = new ArrayList();
+      private static PropertyInfo[] GetAccessibleProperties(Type type)
+      {
+         ArrayList props = new ArrayList();
 
-			foreach(Type interfaceType in type.GetInterfaces())
-			{
-				props.AddRange(interfaceType.GetProperties());
-			}
+         foreach(Type interfaceType in type.GetInterfaces())
+         {
+            props.AddRange(interfaceType.GetProperties());
+         }
 
-			props.AddRange(type.GetProperties());
+         props.AddRange(type.GetProperties());
 
-			return (PropertyInfo[]) props.ToArray(typeof(PropertyInfo));
-		}
-	}
+         return (PropertyInfo[]) props.ToArray(typeof(PropertyInfo));
+      }
+   }
 }
