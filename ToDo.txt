@@ -1,6 +1,7 @@
 - Improve performance by replace current Reflection code with fast property/method accessors, possibly
   use opcode generation, similar to the MVC project.
 - Need someone to maintain Mono builds, since I dont work with Mono at this time.
+- Remove source of benign internal exceptions
 
 -- Original TODO below for historical sake, my additional todo is above (Melvin) --
 
@@ -17,7 +18,7 @@
 - evaluate use of streams
 
 ----------
-::ToDone
+::Done
 ----------
 - consider making all NAnt tasks in a seperate package (and moving Dvsl into the core package?)
 - ViewServlet from Tools subproject - needed for Maverick.net
