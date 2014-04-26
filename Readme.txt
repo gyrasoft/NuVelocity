@@ -10,10 +10,10 @@ Gyrasoft fork of the NVelocity engine as of Castle.NVelocity 1.1.1
   source control sites. The most recent, mature fork, at the time of my fork, was
   Castle.NVelocity 1.1.1 within the Castle project. Not to be confused with the CodePlex
   fork, which has higher release numbers, but is certainly not the most mature, and has
-  more original bugs. I can go into those issues, but I won't. The Castle port is the
-  de facto NVelocity at this time, and if you want something other than my fork, I
-  recommend you avoid the CodePlex fork. Castle.NVelocity is available via Nuget (I have
-  not yet submitted my for through Nuget yet).
+  more original bugs. The Castle fork seems to be the de facto NVelocity as of 2014, and
+  if you want something other than my fork, I recommend you use that. Castle.NVelocity is
+  available via Nuget (I have not yet submitted my fork through Nuget yet and may not
+  since I am not certain I want to confuse people without considerable value added).
 
   You will find many Java-isms in the NVelocity source code. Some concepts don't even
   have counterparts across the languages. I don't feel that it would be wise to spend
