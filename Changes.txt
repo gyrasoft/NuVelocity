@@ -1,8 +1,9 @@
 1.1.2 (2014-4-25)
 ==================
 - Melvin Smith - Fix bug regarding generic container properties and inheritance, where base class property
-  was chosen when there was a derived class property that matched. Write additional unit tests for cases
-  that were not considered in original version, such as specific inheritance cases, generics, and property hiding, etc.
+  was chosen when the correct property was a "new" derived class property of same name, different type.
+- Write additional unit tests for cases that were not considered in original version, such as specific
+  inheritance cases, generics, and property hiding, etc.
 
 1.1.1 (2010-10-12)
 ==================
