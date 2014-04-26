@@ -1,5 +1,3 @@
-This file names who's behind the Castle Team. You can find more about us at http://www.castleproject.org/community/team.html
-
 Committers
 ==========
 (ordered by the date when joined the project)
@@ -36,45 +34,4 @@ Committers
 - Krzysztof Kozmic
 - Mauricio Scheffer
 - John Simons
-
-Managers 
-========
-
-  Patch Manager
-  -------------
-
-  - Josh Robb
-
-  Documentation Manager
-  ---------------------
-
-  - 
-
-
-PMC Members 
-===========
-(ordered by the date when joined the PMC)
-
-- hammett/Hamilton Verissimo (Chair)
-- Henry Conceição
-- Kevin Williams
-- Craig Neuwirt
-- Gilles Bayon
-- Chad Humphries
-- Ayende Rahien
-- Fabio David Batista
-- Roelof Blom
-- Josh Robb
-- Jonathon Rossi
-
-Emeritus 
-========
-(no longer active committers)
-
-- Gilles Bayon
-- Dan
-- Andrew Hallock
-- John Morales
-- CobraLord
-- Tatham Oddie
-- Ahmed Ghandour 
+- Melvin Smith
